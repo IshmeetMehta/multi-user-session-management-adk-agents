@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Multi-User Session Isolation Chat</title>
+    <!-- Premium Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --surface-color: rgba(17, 24, 39, 0.7);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --primary-color: #3b82f6;
+            --primary-glow: rgba(59, 130, 246, 0.4);
+            --accent-color: #8b5cf6;
+            --accent-glow: rgba(139, 92, 246, 0.4);
+            --text-color: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --font-main: 'Plus Jakarta Sans', sans-serif;
+            --font-display: 'Space Grotesk', sans-serif;
+            --success-color: #10b981;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: var(--font-main);
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            background-image: 
+                radial-gradient(at 10% 20%, rgba(59, 130, 246, 0.15) 0px, transparent 50%),
+                radial-gradient(at 90% 80%, rgba(139, 92, 246, 0.15) 0px, transparent 50%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        header {
+            background: rgba(11, 15, 25, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1.25rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-icon {
+            width: 2.25rem;
+            height: 2.25rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            color: white;
+            font-family: var(--font-display);
+            box-shadow: 0 0 15px var(--primary-glow);
+        }
+
+        h1 {
+            font-family: var(--font-display);
+            font-size: 1.25rem;
+            font-weight: 700;
+            background: linear-gradient(to right, #ffffff, #9ca3af);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .user-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .btn-premium {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            border: none;
+            color: white;
+            font-weight: 600;
+            padding: 0.6rem 1.25rem;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-premium:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 20px var(--primary-glow);
+        }
+
+        .user-badge {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            padding: 0.4rem 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .user-avatar {
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            object-fit: cover;
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-name {
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .user-email {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+        }
+
+        .btn-logout {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 0.4rem 0.75rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+        }
+
+        .btn-logout:hover {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            border-color: rgba(239, 68, 68, 0.2);
+        }
+
+        main {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            padding: 1.5rem 2rem;
+            gap: 1.5rem;
+            max-width: 1600px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .card {
+            background: var(--surface-color);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border-color);
+            border-radius: 1.25rem;
+            padding: 1.5rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+
+        .card-title {
+            font-family: var(--font-display);
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: white;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-bottom: 1.25rem;
+        }
+
+        label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        input {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+            color: white;
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.25);
+        }
+
+        .security-badge {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            color: var(--success-color);
+            padding: 0.75rem;
+            border-radius: 0.75rem;
+            font-size: 0.8rem;
+            line-height: 1.4;
+            margin-top: 1rem;
+        }
+
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 180px);
+            min-height: 500px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            background: rgba(0, 0, 0, 0.15);
+            border-radius: 0.75rem;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.02);
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 1rem 1.25rem;
+            border-radius: 1rem;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            animation: fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .message-user {
+            background: linear-gradient(135deg, var(--primary-color), #2563eb);
+            align-self: flex-end;
+            border-bottom-right-radius: 0.25rem;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+        }
+
+        .message-agent {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            align-self: flex-start;
+            border-bottom-left-radius: 0.25rem;
+        }
+
+        .message-system {
+            background: rgba(255, 171, 0, 0.1);
+            border: 1px solid rgba(255, 171, 0, 0.2);
+            color: #ffab00;
+            align-self: center;
+            font-size: 0.8rem;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            max-width: 95%;
+        }
+
+        .chat-input-area {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .chat-input-area input {
+            flex: 1;
+        }
+
+        .btn-send {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            border: none;
+            color: white;
+            font-weight: 600;
+            padding: 0 1.5rem;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-send:hover {
+            box-shadow: 0 0 15px var(--primary-glow);
+        }
+
+        .unauthenticated-overlay {
+            grid-column: 1 / -1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            height: calc(100vh - 200px);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .overlay-title {
+            font-family: var(--font-display);
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(to right, #ffffff, #9ca3af);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .overlay-text {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Scrollbar customization */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-container">
+            <div class="logo-icon">V</div>
+            <h1>Session Isolation Portal</h1>
+        </div>
+        <div class="user-section" id="user-header">
+            <!-- Dynamic User Authentication State Badge -->
+            <button class="btn-premium" id="btn-login">Sign in with Google</button>
+        </div>
+    </header>
+
+    <main>
+        <!-- Unauthenticated Prompt View -->
+        <div class="unauthenticated-overlay" id="auth-overlay">
+            <div class="logo-icon" style="width: 4.5rem; height: 4.5rem; font-size: 2.25rem; border-radius: 1.5rem; margin-bottom: 2rem; line-height: 4.5rem;">V</div>
+            <div class="overlay-title">Enterprise Multi-Tenant AI Agent</div>
+            <div class="overlay-text">
+                Welcome to the secure multi-user AI testing harness. Authenticate with Google OAuth via Firebase to spin up a fully isolated, stateful memory session that is cryptographically secure.
+            </div>
+            <button class="btn-premium" style="font-size: 1rem; padding: 0.8rem 2rem; border-radius: 1rem;" id="btn-overlay-login">
+                Get Started with Google OAuth
+            </button>
+        </div>
+
+        <!-- Authenticated App View (Hidden by default) -->
+        <div class="sidebar" id="app-sidebar" style="display: none;">
+            <div class="card">
+                <div class="card-title">🔑 Session Config</div>
+                
+                <div class="input-group">
+                    <label for="backend-url">Backend Service URL</label>
+                    <input type="text" id="backend-url" value="http://34.9.161.111">
+                </div>
+
+                <div class="input-group">
+                    <label for="session-key">Session Key (Friendly Name)</label>
+                    <input type="text" id="session-key" value="default-chat" placeholder="e.g. travel-planning">
+                </div>
+
+                <div class="security-badge">
+                    🛡️ <strong>Airtight Boundary:</strong><br>
+                    Your friendly session key is securely pre-mapped to <br>
+                    <code style="background: rgba(0,0,0,0.4); padding: 2px 4px; border-radius: 4px; font-size: 0.75rem;" id="mapped-id-preview">user-{email}-session-default-chat</code> <br>
+                    before hitting the backend memory database.
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">💡 How it works</div>
+                <div style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.5; display: flex; flex-direction: column; gap: 0.75rem;">
+                    <div>1. You sign in via Google OAuth. Firebase returns a cryptographically signed JWT.</div>
+                    <div>2. Your token is verified by the FastAPI backend admin service.</div>
+                    <div>3. The backend extracts your verified email as the tenant scope user.</div>
+                    <div>4. This scope is passed as metadata to GKE and Vertex AI to guarantee isolation.</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card chat-container" id="app-chat" style="display: none;">
+            <div class="card-title">💬 Isolated Agent Terminal</div>
+            <div class="chat-messages" id="chat-messages">
+                <div class="message message-agent">Hello! I am your stateful memory agent. Feel free to type anything. Everything we say will be isolated under your secure user profile.</div>
+            </div>
+            <div class="chat-input-area">
+                <input type="text" id="chat-input" placeholder="Type your prompt here..." disabled>
+                <button class="btn-send" id="btn-send" disabled>Send</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Firebase App and Auth SDK Loader -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+        // =======================================================
+        // FIREBASE CONFIGURATION
+        // REPLACE THIS with your actual Firebase Project keys 
+        // =======================================================
+        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+        const firebaseConfig = {
+        apiKey: "FIREBASE_API_KEY",
+        authDomain: "GCP_PROJECT_ID-7aa55.firebaseapp.com",
+        projectId: "GCP_PROJECT_ID-7aa55",
+        storageBucket: "GCP_PROJECT_ID-7aa55.firebasestorage.app",
+        messagingSenderId: "FIREBASE_MESSAGING_SENDER_ID",
+        appId: "1:FIREBASE_MESSAGING_SENDER_ID:web:e4715d3688eda786c2efd2",
+        measurementId: "FIREBASE_MEASUREMENT_ID"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
+        // Request Google Cloud Platform scope to enable dynamic user-token credential delegation
+        provider.addScope("https://www.googleapis.com/auth/cloud-platform");
+
+        // DOM elements
+        const btnLogin = document.getElementById("btn-login");
+        const btnOverlayLogin = document.getElementById("btn-overlay-login");
+        const userHeader = document.getElementById("user-header");
+        const authOverlay = document.getElementById("auth-overlay");
+        const appSidebar = document.getElementById("app-sidebar");
+        const appChat = document.getElementById("app-chat");
+        const chatInput = document.getElementById("chat-input");
+        const btnSend = document.getElementById("btn-send");
+        const chatMessages = document.getElementById("chat-messages");
+        const mappedIdPreview = document.getElementById("mapped-id-preview");
+        const sessionKeyInput = document.getElementById("session-key");
+
+        let currentUser = null;
+        let delegatedAccessToken = null;
+        let isSigningIn = false;
+
+        // Unified Auth UI updater function
+        const updateAuthUI = (user) => {
+            if (user) {
+                currentUser = user;
+                // Fetch the dynamic delegated Google Access Token from sessionStorage
+                delegatedAccessToken = sessionStorage.getItem("google_access_token");
+                console.log("Delegated Access Token present in storage:", !!delegatedAccessToken);
+
+                if (!delegatedAccessToken) {
+                    if (isSigningIn) {
+                        console.log("Middle of a sign-in operation, deferring UI transition.");
+                        return;
+                    }
+                    console.warn("No active delegated GCP access token found. Re-authenticating to refresh credentials.");
+                    signOut(auth);
+                    return;
+                }
+
+                // Update Header UI
+                userHeader.innerHTML = `
+                    <div class="user-badge">
+                        <img class="user-avatar" src="${user.photoURL || 'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y'}" alt="Avatar">
+                        <div class="user-info">
+                            <span class="user-name">${user.displayName || 'Authenticated User'}</span>
+                            <span class="user-email">${user.email}</span>
+                        </div>
+                    </div>
+                    <button class="btn-logout" id="btn-logout">Logout</button>
+                `;
+                document.getElementById("btn-logout").addEventListener("click", () => {
+                    sessionStorage.removeItem("google_access_token");
+                    signOut(auth);
+                });
+
+                // Reveal App Workspace
+                authOverlay.style.display = "none";
+                appSidebar.style.display = "flex";
+                appChat.style.display = "flex";
+                chatInput.removeAttribute("disabled");
+                btnSend.removeAttribute("disabled");
+                updateSessionPreview();
+            } else {
+                currentUser = null;
+                delegatedAccessToken = null;
+                sessionStorage.removeItem("google_access_token");
+                // Revert UI to Sign-In
+                userHeader.innerHTML = `<button class="btn-premium" id="btn-login">Sign in with Google</button>`;
+                document.getElementById("btn-login").addEventListener("click", handleSignIn);
+
+                // Hide workspace
+                authOverlay.style.display = "flex";
+                appSidebar.style.display = "none";
+                appChat.style.display = "none";
+                chatInput.setAttribute("disabled", "true");
+                btnSend.setAttribute("disabled", "true");
+            }
+        };
+
+        // Sign-In Handlers
+        const handleSignIn = async () => {
+            try {
+                isSigningIn = true;
+                const result = await signInWithPopup(auth, provider);
+                const credential = GoogleAuthProvider.credentialFromResult(result);
+                delegatedAccessToken = credential.accessToken;
+                sessionStorage.setItem("google_access_token", delegatedAccessToken);
+                console.log("Successfully signed in! Acquired delegated Google Access Token.");
+                isSigningIn = false;
+                
+                // Explicitly trigger the UI transition now that the token is present
+                updateAuthUI(result.user);
+            } catch (error) {
+                isSigningIn = false;
+                console.error("Sign-In failed: ", error);
+                alert(`Sign-In failed: ${error.message}`);
+            }
+        };
+
+        btnLogin.addEventListener("click", handleSignIn);
+        btnOverlayLogin.addEventListener("click", handleSignIn);
+
+        // Session ID preview updating (Mirroring backend dash-and-lowercase sanitization)
+        const updateSessionPreview = () => {
+            if (currentUser) {
+                const key = sessionKeyInput.value.trim() || "default-chat";
+                const sanitizedUser = currentUser.email.replace(/[^A-Za-z0-9-]/g, "-").toLowerCase();
+                const sanitizedKey = key.replace(/[^A-Za-z0-9-]/g, "-").toLowerCase();
+                mappedIdPreview.innerText = `user-${sanitizedUser}-session-${sanitizedKey}`;
+                
+                // UX Improvement: Clear screen and display active session header
+                chatMessages.innerHTML = `
+                    <div class="message message-system" style="border-left: 4px solid var(--accent); background: rgba(124, 77, 255, 0.05); padding: 12px; border-radius: 4px; font-weight: 500;">
+                        🔄 Context Switched: Active Session set to '${key}'. This workspace has its own isolated stateful memory database.
+                    </div>
+                `;
+            }
+        };
+        sessionKeyInput.addEventListener("input", updateSessionPreview);
+
+        // Authentication State Listener
+        onAuthStateChanged(auth, async (user) => {
+            updateAuthUI(user);
+        });
+
+        // Chat Send Handler
+        const sendMessage = async () => {
+            const promptText = chatInput.value.trim();
+            const sessionKey = sessionKeyInput.value.trim() || "default-chat";
+            const backendUrl = document.getElementById("backend-url").value.trim();
+
+            if (!promptText || !delegatedAccessToken) return;
+
+            // Render user message locally
+            appendMessage(promptText, "user");
+            chatInput.value = "";
+
+            // Render local system loader status
+            const systemId = appendMessage(`Sending secure delegated payload verified under '${currentUser.email}'...`, "system");
+
+            try {
+                const response = await fetch(`${backendUrl}/api/chat`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${delegatedAccessToken}` // Pass real Google OAuth token in header
+                    },
+                    body: JSON.stringify({
+                        session_key: sessionKey,
+                        prompt: promptText
+                    })
+                });
+
+                const data = await response.json();
+                document.getElementById(systemId).remove(); // clear status
+
+                if (response.ok) {
+                    appendMessage(data.response, "agent");
+                } else {
+                    appendMessage(`Error (${response.status}): ${data.detail || 'Internal server error'}`, "system");
+                }
+            } catch (err) {
+                document.getElementById(systemId).remove();
+                appendMessage(`Network connection error to backend: ${err.message}`, "system");
+            }
+        };
+
+        // Helper to append chat nodes to layout
+        let msgCounter = 0;
+        const appendMessage = (text, sender) => {
+            msgCounter++;
+            const id = `msg-${msgCounter}`;
+            const div = document.createElement("div");
+            div.id = id;
+            div.className = `message message-${sender}`;
+            div.innerText = text;
+            chatMessages.appendChild(div);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            return id;
+        };
+
+        btnSend.addEventListener("click", sendMessage);
+        chatInput.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") sendMessage();
+        });
+    </script>
+</body>
+</html>

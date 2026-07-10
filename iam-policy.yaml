@@ -1,0 +1,130 @@
+bindings:
+- condition:
+    description: Only allow access to memories associated with Agent A's user scope
+    expression: api.getAttribute('aiplatform.googleapis.com/memoryScope', {})['userId']
+      == 'agent-a'
+    title: AgentAMemoryScopeLock
+  members:
+  - deleted:serviceAccount:agent-sa-a@GCP_PROJECT_ID.iam.gserviceaccount.com?uid=113718387128937567221
+  - serviceAccount:agent-sa-a@GCP_PROJECT_ID.iam.gserviceaccount.com
+  role: roles/aiplatform.memoryUser
+- condition:
+    description: Only allow access to memories associated with Agent B's user scope
+    expression: api.getAttribute('aiplatform.googleapis.com/memoryScope', {})['userId']
+      == 'agent-b'
+    title: AgentBMemoryScopeLock
+  members:
+  - deleted:serviceAccount:agent-sa-b@GCP_PROJECT_ID.iam.gserviceaccount.com?uid=108696338889532940518
+  - serviceAccount:agent-sa-b@GCP_PROJECT_ID.iam.gserviceaccount.com
+  role: roles/aiplatform.memoryUser
+- members:
+  - serviceAccount:service-GCP_PROJECT_NUMBER@gcp-sa-aiplatform-re.iam.gserviceaccount.com
+  role: roles/aiplatform.reasoningEngineServiceAgent
+- members:
+  - serviceAccount:service-GCP_PROJECT_NUMBER@gcp-sa-aiplatform.iam.gserviceaccount.com
+  role: roles/aiplatform.serviceAgent
+- members:
+  - serviceAccount:service-GCP_PROJECT_NUMBER@gcp-sa-discoveryengine.iam.gserviceaccount.com
+  role: roles/aiplatform.user
+- condition:
+    description: Only allow Agent A SA to call its own Reasoning Engine and publisher
+      models
+    expression: >
+      !has(resource.name) || (has(resource.name) && (resource.name.startsWith('projects/GCP_PROJECT_ID/locations/us-central1/reasoningEngines/REASONING_ENGINE_ID_A')
+      || resource.name.startsWith('projects/GCP_PROJECT_NUMBER/locations/us-central1/reasoningEngines/REASONING_ENGINE_ID_A')
+      || resource.name.startsWith('//aiplatform.googleapis.com/projects/GCP_PROJECT_ID/locations/us-central1/reasoningEngines/REASONING_ENGINE_ID_A')
+      || resource.name.startsWith('//aiplatform.googleapis.com/projects/GCP_PROJECT_NUMBER/locations/us-central1/reasoningEngines/REASONING_ENGINE_ID_A')
+      || resource.name.startsWith('projects/GCP_PROJECT_ID/locations/us-central1/publishers/')
+      || resource.name.startsWith('projects/GCP_PROJECT_NUMBER/locations/us-central1/publishers/')
+      || resource.name.startsWith('//aiplatform.googleapis.com/projects/GCP_PROJECT_ID/locations/us-central1/publishers/')
+      || resource.name.startsWith('//aiplatform.googleapis.com/projects/GCP_PROJECT_NUMBER/locations/us-central1/publishers/')))
+    title: RestrictToAgentAEngine
+  members:
+  - serviceAccount:agent-sa-a@GCP_PROJECT_ID.iam.gserviceaccount.com
+  role: roles/aiplatform.user
+- condition:
+    description: Only allow Agent B SA to call its own Reasoning Engine and publisher
+      models
+    expression: >
+      !has(resource.name) || (has(resource.name) && (resource.name.startsWith('projects/GCP_PROJECT_ID/locations/us-central1/reasoningEngines/REASONING_ENGINE_ID_B')
+      || resource.name.startsWith('projects/GCP_PROJECT_NUMBER/locations/us-central1/reasoningEngines/REASONING_ENGINE_ID_B')
+      || resource.name.startsWith('//aiplatform.googleapis.com/projects/GCP_PROJECT_ID/locations/us-central1/reasoningEngines/REASONING_ENGINE_ID_B')
+      || resource.name.startsWith('//aiplatform.googleapis.com/projects/GCP_PROJECT_NUMBER/locations/us-central1/reasoningEngines/REASONING_ENGINE_ID_B')
+      || resource.name.startsWith('projects/GCP_PROJECT_ID/locations/us-central1/publishers/')
+      || resource.name.startsWith('projects/GCP_PROJECT_NUMBER/locations/us-central1/publishers/')
+      || resource.name.startsWith('//aiplatform.googleapis.com/projects/GCP_PROJECT_ID/locations/us-central1/publishers/')
+      || resource.name.startsWith('//aiplatform.googleapis.com/projects/GCP_PROJECT_NUMBER/locations/us-central1/publishers/')))
+    title: RestrictToAgentBEngine
+  members:
+  - serviceAccount:agent-sa-b@GCP_PROJECT_ID.iam.gserviceaccount.com
+  role: roles/aiplatform.user
+- members:
+  - serviceAccount:service-GCP_PROJECT_NUMBER@gcp-sa-artifactregistry.iam.gserviceaccount.com
+  role: roles/artifactregistry.serviceAgent
+- members:
+  - serviceAccount:GCP_PROJECT_NUMBER-compute@developer.gserviceaccount.com
+  role: roles/artifactregistry.writer
+- members:
+  - serviceAccount:GCP_PROJECT_NUMBER-compute@developer.gserviceaccount.com
+  - serviceAccount:GCP_PROJECT_NUMBER@cloudbuild.gserviceaccount.com
+  role: roles/cloudbuild.builds.builder
+- members:
+  - serviceAccount:GCP_PROJECT_NUMBER-compute@developer.gserviceaccount.com
+  role: roles/cloudbuild.builds.editor
+- members:
+  - serviceAccount:service-GCP_PROJECT_NUMBER@gcp-sa-cloudbuild.iam.gserviceaccount.com
+  role: roles/cloudbuild.serviceAgent
+- members:
+  - serviceAccount:service-GCP_PROJECT_NUMBER@gcp-sa-csc-hpsa.iam.gserviceaccount.com
+  role: roles/cloudsecuritycompliance.serviceAgent
+- members:
+  - serviceAccount:GCP_PROJECT_NUMBER@cloudservices.gserviceaccount.com
+  role: roles/compute.instanceGroupManagerServiceAgent
+- members:
+  - serviceAccount:service-GCP_PROJECT_NUMBER@compute-system.iam.gserviceaccount.com
+  role: roles/compute.serviceAgent
+- members:
+  - serviceAccount:service-GCP_PROJECT_NUMBER@gcp-sa-gkenode.iam.gserviceaccount.com
+  role: roles/container.defaultNodeServiceAgent
+- members:
+  - serviceAccount:service-GCP_PROJECT_NUMBER@container-engine-robot.iam.gserviceaccount.com
+  role: roles/container.serviceAgent
+- members:
+  - serviceAccount:service-GCP_PROJECT_NUMBER@container-analysis.iam.gserviceaccount.com
+  role: roles/containeranalysis.ServiceAgent
+- members:
+  - serviceAccount:service-GCP_PROJECT_NUMBER@containerregistry.iam.gserviceaccount.com
+  role: roles/containerregistry.ServiceAgent
+- members:
+  - serviceAccount:GCP_PROJECT_NUMBER-compute@developer.gserviceaccount.com
+  role: roles/logging.configWriter
+- members:
+  - serviceAccount:GCP_PROJECT_NUMBER-compute@developer.gserviceaccount.com
+  - serviceAccount:nemo-gsa@GCP_PROJECT_ID.iam.gserviceaccount.com
+  role: roles/logging.logWriter
+- members:
+  - user:admin@yourdomain.com
+  role: roles/logging.viewer
+- members:
+  - serviceAccount:nemo-gsa@GCP_PROJECT_ID.iam.gserviceaccount.com
+  role: roles/monitoring.metricWriter
+- members:
+  - serviceAccount:service-GCP_PROJECT_NUMBER@gcp-sa-networkconnectivity.iam.gserviceaccount.com
+  role: roles/networkconnectivity.serviceAgent
+- members:
+  - serviceAccount:service-GCP_PROJECT_NUMBER@gcp-sa-notebooks.iam.gserviceaccount.com
+  role: roles/notebooks.serviceAgent
+- members:
+  - user:admin@yourdomain.com
+  role: roles/owner
+- members:
+  - serviceAccount:service-GCP_PROJECT_NUMBER@gcp-sa-pubsub.iam.gserviceaccount.com
+  role: roles/pubsub.serviceAgent
+- members:
+  - serviceAccount:GCP_PROJECT_NUMBER-compute@developer.gserviceaccount.com
+  role: roles/storage.admin
+- members:
+  - serviceAccount:service-GCP_PROJECT_NUMBER@gcp-sa-aiplatform-re.iam.gserviceaccount.com
+  role: roles/storage.objectAdmin
+etag: BwZWG976dXM=
+version: 3

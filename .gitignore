@@ -1,0 +1,36 @@
+# Python virtual environments & caches
+venv/
+.venv/
+env/
+.env/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Local/IDE specific configs
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+*~
+
+# Firebase files
+.firebase/
+firebase-debug-*.log
+
+# Dependency directories
+node_modules/
+jspm_packages/
+
+# System-generated files & temporary logs
+.system_generated/
+*.log
+.DS_Store
+Thumbs.db

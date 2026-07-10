@@ -1,0 +1,3 @@
+title: RestrictToAgentAEngine
+description: Only allow Agent A SA to call its own Reasoning Engine and publisher models
+expression: (resource.type == 'aiplatform.googleapis.com/PublisherModel') || (has(resource.name) && (resource.name.startsWith('projects/GCP_PROJECT_ID/locations/us-central1/reasoningEngines/REASONING_ENGINE_ID_A') || resource.name.startsWith('projects/GCP_PROJECT_NUMBER/locations/us-central1/reasoningEngines/REASONING_ENGINE_ID_A') || resource.name.startsWith('//aiplatform.googleapis.com/projects/GCP_PROJECT_ID/locations/us-central1/reasoningEngines/REASONING_ENGINE_ID_A') || resource.name.startsWith('//aiplatform.googleapis.com/projects/GCP_PROJECT_NUMBER/locations/us-central1/reasoningEngines/REASONING_ENGINE_ID_A')))

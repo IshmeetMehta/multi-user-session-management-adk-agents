@@ -1,0 +1,3 @@
+title: BobMemoryScopeLock
+description: Restrict memory storage accesses strictly to Bob's user scope
+expression: "api.getAttribute('aiplatform.googleapis.com/memoryScope', {})['userId'] == 'bob@yourdomain.com'"

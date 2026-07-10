@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: adk-agent-b
+  namespace: namespace-b
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: adk-agent-b
+  template:
+    metadata:
+      labels:
+        app: adk-agent-b
+    spec:
+      serviceAccountName: agent-ksa-b
+      containers:
+      - name: agent-container
+        image: "us-central1-docker.pkg.dev/GCP_PROJECT_ID/agent-repository/native-adk-agents:latest"
+        imagePullPolicy: Always
+        args: ["B"] # Evaluates Agent B (Go Only)
+        env:
+        - name: GCP_PROJECT
+          value: "GCP_PROJECT_ID"
+        - name: GCP_REGION
+          value: "us-central1"
+        - name: MEMORY_BANK_PATH
+          value: "projects/GCP_PROJECT_NUMBER/locations/us-central1/reasoningEngines/REASONING_ENGINE_ID_B"
+        - name: SESSION_ID
+          value: "cross-isolation-test-session"
+        - name: AGENT_PROMPT
+          value: "Remember this secret code: GOLANG-STREAM-999. Do not forget it."

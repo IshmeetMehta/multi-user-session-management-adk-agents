@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: adk-multi-user-agent
+  namespace: namespace-a
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: adk-multi-user-agent
+  template:
+    metadata:
+      labels:
+        app: adk-multi-user-agent
+    spec:
+      serviceAccountName: agent-ksa-a # Uses GSA agent-sa-a under GKE Workload Identity
+      containers:
+      - name: agent-container
+        image: "us-central1-docker.pkg.dev/GCP_PROJECT_ID/agent-repository/multi-user-isolated-agent:latest" 
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+        env:
+        - name: GCP_PROJECT
+          value: "GCP_PROJECT_ID"
+        - name: GCP_REGION
+          value: "us-central1"
+        - name: MEMORY_BANK_PATH
+          value: "projects/GCP_PROJECT_NUMBER/locations/us-central1/reasoningEngines/REASONING_ENGINE_ID_A"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: adk-multi-user-service
+  namespace: namespace-a
+spec:
+  type: LoadBalancer # Automatically assigns a public IP to connect our local frontend
+  ports:
+  - port: 80
+    targetPort: 8080
+    protocol: TCP
+  selector:
+    app: adk-multi-user-agent

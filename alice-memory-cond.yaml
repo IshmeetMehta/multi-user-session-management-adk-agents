@@ -1,0 +1,3 @@
+title: AliceMemoryScopeLock
+description: Restrict memory storage accesses strictly to Alice's user scope
+expression: "api.getAttribute('aiplatform.googleapis.com/memoryScope', {})['userId'] == 'alice@yourdomain.com'"

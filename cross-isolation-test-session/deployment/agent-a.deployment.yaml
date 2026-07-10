@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: adk-agent-a-test
+  namespace: namespace-a
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: adk-agent-a-test
+  template:
+    metadata:
+      labels:
+        app: adk-agent-a-test
+    spec:
+      serviceAccountName: agent-ksa-a
+      containers:
+      - name: agent-container
+        image: "us-central1-docker.pkg.dev/GCP_PROJECT_ID/agent-repository/native-adk-agents-test:latest"
+        imagePullPolicy: Always
+        args: ["A"] # Runs Agent A (Python Persona)
+        env:
+        - name: GCP_PROJECT
+          value: "GCP_PROJECT_ID"
+        - name: GCP_REGION
+          value: "us-central1"
+        - name: MEMORY_BANK_PATH
+          value: "projects/GCP_PROJECT_NUMBER/locations/us-central1/reasoningEngines/REASONING_ENGINE_ID_B" # <--- SWAPPED (Point Agent A to Agent B's memory bank)
+        - name: SESSION_ID
+          value: "cross-isolation-test-session"
+        - name: AGENT_PROMPT
+          value: "What was the secret code we discussed in our previous turn? Summarize what we talked about."

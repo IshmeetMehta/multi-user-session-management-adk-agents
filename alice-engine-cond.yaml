@@ -1,0 +1,3 @@
+title: RestrictAliceToCasperEngine
+description: Only allow Alice to execute the specific Casper reasoning engine
+expression: "resource.type == 'aiplatform.googleapis.com/ReasoningEngine' && resource.name == 'projects/GCP_PROJECT_ID/locations/us-central1/reasoningEngines/REASONING_ENGINE_ID_A'"

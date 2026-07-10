@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: namespace-a
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: agent-ksa-a
+  namespace: namespace-a
+  annotations:
+    iam.gke.io/gcp-service-account: "agent-sa-a@GCP_PROJECT_ID.iam.gserviceaccount.com"
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: namespace-b
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: agent-ksa-b
+  namespace: namespace-b
+  annotations:
+    iam.gke.io/gcp-service-account: "agent-sa-b@GCP_PROJECT_ID.iam.gserviceaccount.com"

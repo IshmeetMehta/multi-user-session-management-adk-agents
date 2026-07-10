@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: adk-multi-user-frontend
+  namespace: namespace-a
+  labels:
+    app: adk-multi-user-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: adk-multi-user-frontend
+  template:
+    metadata:
+      labels:
+        app: adk-multi-user-frontend
+    spec:
+      containers:
+      - name: frontend
+        image: us-central1-docker.pkg.dev/GCP_PROJECT_ID/agent-repository/multi-user-isolated-frontend:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: adk-multi-user-frontend-service
+  namespace: namespace-a
+spec:
+  type: LoadBalancer
+  selector:
+    app: adk-multi-user-frontend
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
