@@ -65,7 +65,7 @@ To enforce absolute session isolation, the architecture relies on a strict two-l
 ```mermaid
 graph TD
     subgraph "Layer 1: Application-Level Defense (Web Frontend & FastAPI)"
-        User[End User (Google OIDC)] -->|1. Sign In & Prompt| Front["Web Frontend (Firebase Auth)"]
+        User["End User (Google OIDC)"] -->|1. Sign In & Prompt| Front["Web Frontend (Firebase Auth)"]
         Front -->|2. Send JWT ID Token + Friendly Key| API["FastAPI Backend (GKE)"]
         API -->|3. Decode & Verify JWT Local Signature| Auth{"Valid Token?"}
         Auth -->|No| Reject["403 Unauthorized"]
