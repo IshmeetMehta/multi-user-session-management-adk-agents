@@ -64,7 +64,7 @@ To enforce absolute session isolation, the architecture relies on a strict two-l
 
 ```mermaid
 graph TD
-    subgraph Layer 1: Application-Level Defense (Web Frontend & FastAPI)
+    subgraph "Layer 1: Application-Level Defense (Web Frontend & FastAPI)"
         User[End User (Google OIDC)] -->|1. Sign In & Prompt| Front["Web Frontend (Firebase Auth)"]
         Front -->|2. Send JWT ID Token + Friendly Key| API["FastAPI Backend (GKE)"]
         API -->|3. Decode & Verify JWT Local Signature| Auth{"Valid Token?"}
@@ -72,7 +72,7 @@ graph TD
         Auth -->|Yes: Extract User ID| Prefix["4. Format Session ID: user-EMAIL-session-KEY"]
     end
 
-    subgraph Layer 2: Cloud-Level Defense (GCP IAM CEL Gate)
+    subgraph "Layer 2: Cloud-Level Defense (GCP IAM CEL Gate)"
         Prefix -->|5. Connect via Delegated Credentials| Vertex["Vertex AI (Reasoning Engine / Memory Bank)"]
         Vertex -->|6. Intercept Session Call| IAM{"GCP IAM CEL Policy Engine"}
         IAM -->|Match user ID in memoryScope?| Write["Allow Memory Write & Persistent Chat Turn"]
